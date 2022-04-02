@@ -62,19 +62,23 @@ export default function Home() {
             )}
           </p>
 
-          <p>
-            Transfer Coins to Friends{' '}
-            <button disabled={loading || supplyCapped} onClick={transferCoins}>
-              Transfer 10 Coins
-            </button>
-          </p>
+          {isCoinCreated && (
+            <>
+              <p>
+                Transfer Coins to Friends{' '}
+                <button disabled={loading || supplyCapped} onClick={transferCoins}>
+                  Transfer 10 Coins
+                </button>
+              </p>
 
-          <p>
-            Cap Coin Supply{' '}
-            <button disabled={loading || supplyCapped} onClick={capSupply}>
-              Cap Supply
-            </button>
-          </p>
+              <p>
+                Cap Coin Supply{' '}
+                <button disabled={loading || supplyCapped} onClick={capSupply}>
+                  Cap Supply
+                </button>
+              </p>
+            </>
+          )}
         </>
       ) : (
         <></>

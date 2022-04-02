@@ -64,7 +64,6 @@ export default function ProviderUtils() {
   };
 
   /** Airdrops SOL from the Solana blockchain, only works on the devnet & defaults to 1 SOL. */
-
   const airdropTestSOL = async (account, amount) => {
     try {
       // if account is supplied, loading is handled elsewhere.
@@ -234,11 +233,10 @@ export default function ProviderUtils() {
     console.log(provider);
     try {
       setLoading(true);
-
       const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 
-      const fromWallet = Keypair.fromSecretKey(Uint8Array.from(Object.values(JSON.parse(mintingWalletSecretKey))));
       // TODO: Temp ID to be overriden by input
+      const fromWallet = Keypair.fromSecretKey(Uint8Array.from(Object.values(JSON.parse(mintingWalletSecretKey))));
       const toWallet = Keypair.generate();
 
       await airdropTestSOL(fromWallet.publicKey, 1);
