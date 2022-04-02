@@ -5,6 +5,8 @@ const initial = {
   provider: undefined,
   connected: false,
   loading: false,
+  connectWallet: () => {},
+  disconnectWallet: () => {},
 };
 
 export const SolanaContext = createContext(initial);
