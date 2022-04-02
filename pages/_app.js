@@ -1,11 +1,7 @@
-import {SolanaProvider} from '../context/solana';
+import '../styles/globals.css';
 
 function MyApp({Component, pageProps}) {
-  return (
-    <SolanaProvider>
-      <Component {...pageProps} />
-    </SolanaProvider>
-  );
+  return <Component {...pageProps} />;
 }
 
 export default MyApp;
