@@ -1,24 +1,12 @@
-import {
-  Connection,
-  clusterApiUrl,
-  Keypair,
-  LAMPORTS_PER_SOL,
-  Transaction,
-  sendAndConfirmTransaction,
-  PublicKey,
-} from '@solana/web3.js';
+import {Connection, clusterApiUrl, Keypair, LAMPORTS_PER_SOL} from '@solana/web3.js';
 import {useState} from 'react';
 import {
-  createAccount,
   createMint,
   getAccount,
-  getAssociatedTokenAddress,
   getMint,
   getOrCreateAssociatedTokenAccount,
   mintTo,
-  NATIVE_MINT,
   setAuthority,
-  TOKEN_PROGRAM_ID,
   transfer,
 } from '@solana/spl-token';
 
