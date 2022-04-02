@@ -7,6 +7,8 @@ const initial = {
   loading: false,
   connectWallet: () => {},
   disconnectWallet: () => {},
+  airdropTestSOL: () => {},
+  setRequestedSOLAmount: () => {},
 };
 
 export const SolanaContext = createContext(initial);

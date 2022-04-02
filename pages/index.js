@@ -2,10 +2,25 @@ import {useContext} from 'react';
 import {SolanaContext} from '../context/solana';
 
 export default function Home() {
-  const {connected, provider, loading, connectWallet, disconnectWallet} = useContext(SolanaContext);
+  const {
+    connected,
+    provider,
+    loading,
+    connectWallet,
+    disconnectWallet,
+    airdropTestSOL,
+    requestedSOLAmount,
+    setRequestedSOLAmount,
+  } = useContext(SolanaContext);
 
   const handleClick = () => {
     !connected ? connectWallet() : disconnectWallet();
+  };
+
+  const onSOLAmountChange = event => {
+    const number = event.target.value;
+
+    setRequestedSOLAmount(number);
   };
 
   console.log(loading, provider, connected);
@@ -18,6 +33,20 @@ export default function Home() {
         </p>
       ) : (
         <p></p>
+      )}
+
+      {connected ? (
+        <>
+          <p>Airdrop SOL into your wallet</p>
+          <p>
+            <input type='number' value={requestedSOLAmount} onChange={onSOLAmountChange} />
+            <button disabled={loading} onClick={airdropTestSOL}>
+              AirDrop SOL
+            </button>
+          </p>
+        </>
+      ) : (
+        <></>
       )}
 
       <button disabled={loading} onClick={handleClick}>
