@@ -11,6 +11,7 @@ export default function Home() {
     airdropTestSOL,
     requestedSOLAmount,
     setRequestedSOLAmount,
+    initialMintCoins,
   } = useContext(SolanaContext);
 
   const handleClick = () => {
@@ -45,6 +46,17 @@ export default function Home() {
             </button>
           </p>
         </>
+      ) : (
+        <></>
+      )}
+
+      {connected ? (
+        <p>
+          Create your own token
+          <button disabled={loading} onClick={initialMintCoins}>
+            Initial Mint
+          </button>
+        </p>
       ) : (
         <></>
       )}

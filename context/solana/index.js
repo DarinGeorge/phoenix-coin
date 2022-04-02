@@ -5,10 +5,11 @@ const initial = {
   provider: undefined,
   connected: false,
   loading: false,
-  connectWallet: () => {},
+  connectWallet: async () => {},
   disconnectWallet: () => {},
-  airdropTestSOL: () => {},
-  setRequestedSOLAmount: () => {},
+  airdropTestSOL: async () => {},
+  setRequestedSOLAmount: async () => {},
+  initialMintCoins: async () => {},
 };
 
 export const SolanaContext = createContext(initial);
