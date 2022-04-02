@@ -9,6 +9,7 @@ import {
 import {useState} from 'react';
 import {
   createMint,
+  getAccount,
   getAssociatedTokenAddress,
   getMint,
   getOrCreateAssociatedTokenAccount,
@@ -97,70 +98,46 @@ export default function ProviderUtils() {
 
   /** Mints new coins on the devnet. */
   const initialMintCoins = async () => {
-    try {
-      // 1. Create Connection to devnet & mint coin
-      setLoading(true);
-      const requestor = await provider.publicKey;
-      const mintAuthority = Keypair.generate();
-      const freezeAuthority = Keypair.generate();
+    // 1. Create Connection to devnet & mint coin
+    setLoading(true);
+    const requestor = await provider.publicKey;
+    const mintAuthority = Keypair.generate();
+    const freezeAuthority = Keypair.generate();
 
-      const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
-      setMintingWalletSecretKey(mintAuthority.secretKey);
+    const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+    setMintingWalletSecretKey(mintAuthority.secretKey);
 
-      await airdropTestSOL(mintAuthority.publicKey, 1);
+    await airdropTestSOL(mintAuthority.publicKey, 1);
 
-      const mint = await createMint(
-        connection,
-        mintAuthority,
-        mintAuthority.publicKey,
-        freezeAuthority.publicKey,
-        9 // We are using 9 to match the CLI decimal default exactly.
-      );
+    const mint = await createMint(
+      connection,
+      mintAuthority,
+      mintAuthority.publicKey,
+      freezeAuthority.publicKey,
+      9 // We are using 9 to match the CLI decimal default exactly.
+    );
 
-      setCreatedCoinPublicKey(mint.toBase58());
-      console.log('mint unique ID: ', mint);
+    setCreatedCoinPublicKey(mint.toBase58());
+    console.log('mint unique ID: ', mint.toBase58());
 
-      // 2. Verify new supply is 0, then create coin account & mint initial amount
-      const mintInfo = await getMint(connection, mint);
-      console.log('current supply: ', mintInfo.supply); // 0
+    // 2. Verify new supply is 0, then create coin account & mint initial amount
+    const mintInfo = await getMint(connection, mint);
+    console.log('current supply: ', mintInfo.supply); // 0
 
-      const masterCoinAccount = await getAssociatedTokenAddress(NATIVE_MINT, requestor);
-      console.log('coin account address:', masterCoinAccount);
+    const masterCoinAccount = await getOrCreateAssociatedTokenAccount(connection, mintAuthority, mint, requestor);
+    console.log('coin account address:', masterCoinAccount.address.toBase58());
 
-      await mintTo(connection, mintAuthority, mint, masterCoinAccount, mintAuthority.publicKey, 1000000, []);
+    await mintTo(connection, mintAuthority, mint, masterCoinAccount.address, mintAuthority.publicKey, 1000000);
 
-      // (Optional) Print Balances
-      const info = await getMint(connection, mint);
-      console.log('new supply:', info.supply);
+    // (Optional) Print Balances
+    const info = await getMint(connection, mint);
+    console.log('new supply:', info.supply);
 
-      const tokenAccountInfo = await getAccount(connection, tokenAccount.address);
-      console.log('verified supply in account:', tokenAccountInfo.amount);
+    const tokenAccountInfo = await getAccount(connection, masterCoinAccount.address);
+    console.log('verified supply in account:', tokenAccountInfo.amount);
 
-      // // 5a. Transfer to airdrop requestor
-      // const toAccount = await phoenixCoinMinter.getOrCreateAssociatedAccountInfo(requester);
-      // const transaction = new Transaction().add(
-      //   SPL.createTransferInstruction(
-      //     TOKEN_PROGRAM_ID,
-      //     fromAccount,
-      //     toAccount,
-      //     mintKeypair.publicKey,
-      //     [],
-      //     requestedInitialMintAmount
-      //   )
-      // );
-
-      // // 5b. Sign the transfer
-      // const signature = await sendAndConfirmTransaction(connection, transaction, [mintKeypair], {
-      //   commitment: 'confirmed',
-      // });
-
-      // console.log('signature:', signature);
-      setIsCoinCreated(true);
-      setLoading(false);
-    } catch (e) {
-      console.error(e);
-      setLoading(false);
-    }
+    setIsCoinCreated(true);
+    setLoading(false);
   };
 
   return {
