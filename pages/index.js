@@ -12,9 +12,12 @@ export default function Home() {
     requestedSOLAmount,
     setRequestedSOLAmount,
     initialMintCoins,
+    mintMoreCoins,
+    isCoinCreated,
+    supplyCapped,
   } = useContext(SolanaContext);
 
-  const handleClick = () => {
+  const handleConnectClick = () => {
     !connected ? connectWallet() : disconnectWallet();
   };
 
@@ -24,8 +27,6 @@ export default function Home() {
     setRequestedSOLAmount(number);
   };
 
-  console.log(loading, provider, connected);
-
   return (
     <>
       {connected ? (
@@ -33,7 +34,7 @@ export default function Home() {
           <strong>Public Key:</strong> {provider.publicKey.toString()}
         </p>
       ) : (
-        <p></p>
+        <></>
       )}
 
       {connected ? (
@@ -53,15 +54,21 @@ export default function Home() {
       {connected ? (
         <p>
           Create your own token
-          <button disabled={loading} onClick={initialMintCoins}>
-            Initial Mint
-          </button>
+          {isCoinCreated ? (
+            <button disabled={loading || supplyCapped} onClick={mintMoreCoins}>
+              Mint 100 more
+            </button>
+          ) : (
+            <button disabled={loading} onClick={initialMintCoins}>
+              Initial Mint
+            </button>
+          )}
         </p>
       ) : (
         <></>
       )}
 
-      <button disabled={loading} onClick={handleClick}>
+      <button disabled={loading} onClick={handleConnectClick}>
         {!connected ? 'Connect Wallet' : 'Disconnect Wallet'}
       </button>
     </>

@@ -10,6 +10,11 @@ const initial = {
   airdropTestSOL: async () => {},
   setRequestedSOLAmount: async () => {},
   initialMintCoins: async () => {},
+  mintMoreCoins: async () => {},
+  requestedInitialMintAmount: 0,
+  setRequestedInitialMintAmount: () => {},
+  isCoinCreated: false,
+  supplyCapped: false,
 };
 
 export const SolanaContext = createContext(initial);
