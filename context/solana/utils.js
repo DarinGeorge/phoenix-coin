@@ -5,6 +5,7 @@ import {
   LAMPORTS_PER_SOL,
   Transaction,
   sendAndConfirmTransaction,
+  PublicKey,
 } from '@solana/web3.js';
 import {useState} from 'react';
 import {
@@ -16,6 +17,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   mintTo,
   NATIVE_MINT,
+  setAuthority,
   TOKEN_PROGRAM_ID,
   transfer,
 } from '@solana/spl-token';
@@ -41,7 +43,7 @@ export default function ProviderUtils() {
   const [requestedSOLAmount, setRequestedSOLAmount] = useState(0);
   const [requestedInitialMintAmount, setRequestedInitialMintAmount] = useState(0);
   const [isCoinCreated, setIsCoinCreated] = useState(false);
-  const [createdCoinPublicKey, setCreatedCoinPublicKey] = useState('');
+  const [createdCoinPublicKey, setCreatedCoinPublicKey] = useState();
   const [mintingWalletSecretKey, setMintingWalletSecretKey] = useState('');
   const [supplyCapped, setSupplyCapped] = useState(false);
 
@@ -70,7 +72,7 @@ export default function ProviderUtils() {
 
     //Disconnect Wallet
     setProvider(undefined);
-    setWalletConnected(false);
+    setConnected(false);
   };
 
   /** Airdrops SOL from the Solana blockchain, only works on the devnet & defaults to 1 SOL. */
@@ -124,7 +126,7 @@ export default function ProviderUtils() {
         9 // We are using 9 to match the CLI decimal default exactly.
       );
 
-      setCreatedCoinPublicKey(mint.toBase58());
+      setCreatedCoinPublicKey(mint);
       console.log('mint unique ID: ', mint.toBase58());
 
       // 2. Verify new supply is 0, then create coin account & mint initial amount
@@ -186,12 +188,13 @@ export default function ProviderUtils() {
 
       // 1. Connect to devnet & Request airdrop
       const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
-      const mintingAuthority = Keypair.fromSecretKey(
-        Uint8Array.from(Object.values(JSON.parse(mintingWalletSecretKey)))
-      );
+      const mintingAuthority =
+        mintingWalletSecretKey.trim() === ''
+          ? Keypair.generate()
+          : Keypair.fromSecretKey(Uint8Array.from(Object.values(JSON.parse(mintingWalletSecretKey))));
       const mintRequestor = await provider.publicKey;
 
-      airdropTestSOL(mintingAuthority.publicKey, 1);
+      await airdropTestSOL(mintingAuthority.publicKey, 1);
 
       // 2. Create a new minter & get the minting wallet account
       const mint = await createMint(
@@ -227,11 +230,77 @@ export default function ProviderUtils() {
         mintingAuthority.publicKey,
         100
       );
-      console.log('Transferred', accountInfo.amount, 'SOL to', toCoinAccount.address.toBase58());
+      console.log('Transferred', 100, 'SOL to', toCoinAccount.address.toBase58());
       console.log(
         'View transaction via Solana Explorer here: https://explorer.solana.com/tx/' + sigTxHash + '?cluster=devnet'
       );
 
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  };
+
+  const transferCoins = async () => {
+    console.log(provider);
+    try {
+      setLoading(true);
+
+      const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+
+      const fromWallet = Keypair.fromSecretKey(Uint8Array.from(Object.values(JSON.parse(mintingWalletSecretKey))));
+      // TODO: Temp ID to be overriden by input
+      const toWallet = Keypair.generate();
+
+      await airdropTestSOL(fromWallet.publicKey, 1);
+
+      const mint = await createMint(connection, fromWallet, fromWallet.publicKey, null, 9);
+      const fromAccount = await getOrCreateAssociatedTokenAccount(connection, fromWallet, mint, fromWallet.publicKey);
+      const toAccount = await getOrCreateAssociatedTokenAccount(connection, fromWallet, mint, toWallet.publicKey);
+
+      await mintTo(connection, fromWallet, mint, fromAccount.address, fromWallet.publicKey, LAMPORTS_PER_SOL);
+
+      const sigTxHash = await transfer(
+        connection,
+        fromWallet,
+        fromAccount.address,
+        toAccount.address,
+        fromWallet.publicKey,
+        10
+      );
+
+      console.log('Transferred', 10, 'SOL to', toAccount.address.toBase58());
+      console.log(
+        'View transaction via Solana Explorer here: https://explorer.solana.com/tx/' + sigTxHash + '?cluster=devnet'
+      );
+
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  };
+
+  const capSupply = async () => {
+    try {
+      setLoading(true);
+      const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+
+      const mintAuthority = Keypair.fromSecretKey(Uint8Array.from(Object.values(JSON.parse(mintingWalletSecretKey))));
+      airdropTestSOL(mintAuthority.publicKey, 1);
+
+      await setAuthority(
+        connection,
+        mintAuthority,
+        mintAuthority.publicKey,
+        mintAuthority.publicKey,
+        'MintTokens',
+        null,
+        [mintAuthority]
+      );
+
+      setSupplyCapped(true);
       setLoading(false);
     } catch (err) {
       console.log(err);
@@ -254,5 +323,7 @@ export default function ProviderUtils() {
     setRequestedInitialMintAmount,
     isCoinCreated,
     supplyCapped,
+    capSupply,
+    transferCoins,
   };
 }

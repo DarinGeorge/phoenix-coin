@@ -15,6 +15,8 @@ export default function Home() {
     mintMoreCoins,
     isCoinCreated,
     supplyCapped,
+    capSupply,
+    transferCoins,
   } = useContext(SolanaContext);
 
   const handleConnectClick = () => {
@@ -29,16 +31,16 @@ export default function Home() {
 
   return (
     <>
-      {connected ? (
-        <p>
-          <strong>Public Key:</strong> {provider.publicKey.toString()}
-        </p>
-      ) : (
-        <></>
-      )}
+      <button disabled={loading} onClick={handleConnectClick}>
+        {!connected ? 'Connect Wallet' : 'Disconnect Wallet'}
+      </button>
 
       {connected ? (
         <>
+          <p>
+            <strong>Public Key:</strong> {provider.publicKey.toString()}
+          </p>
+
           <p>Airdrop SOL into your wallet</p>
           <p>
             <input type='number' value={requestedSOLAmount} onChange={onSOLAmountChange} />
@@ -46,31 +48,37 @@ export default function Home() {
               AirDrop SOL
             </button>
           </p>
+
+          <p>
+            Create your own token{' '}
+            {isCoinCreated ? (
+              <button disabled={loading || supplyCapped} onClick={mintMoreCoins}>
+                Mint 100 more
+              </button>
+            ) : (
+              <button disabled={loading} onClick={initialMintCoins}>
+                Initial Mint
+              </button>
+            )}
+          </p>
+
+          <p>
+            Transfer Coins to Friends{' '}
+            <button disabled={loading || supplyCapped} onClick={transferCoins}>
+              Transfer 10 Coins
+            </button>
+          </p>
+
+          <p>
+            Cap Coin Supply{' '}
+            <button disabled={loading || supplyCapped} onClick={capSupply}>
+              Cap Supply
+            </button>
+          </p>
         </>
       ) : (
         <></>
       )}
-
-      {connected ? (
-        <p>
-          Create your own token
-          {isCoinCreated ? (
-            <button disabled={loading || supplyCapped} onClick={mintMoreCoins}>
-              Mint 100 more
-            </button>
-          ) : (
-            <button disabled={loading} onClick={initialMintCoins}>
-              Initial Mint
-            </button>
-          )}
-        </p>
-      ) : (
-        <></>
-      )}
-
-      <button disabled={loading} onClick={handleConnectClick}>
-        {!connected ? 'Connect Wallet' : 'Disconnect Wallet'}
-      </button>
     </>
   );
 }

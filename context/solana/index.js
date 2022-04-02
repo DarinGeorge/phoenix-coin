@@ -15,6 +15,9 @@ const initial = {
   setRequestedInitialMintAmount: () => {},
   isCoinCreated: false,
   supplyCapped: false,
+  transferCoins: async () => {},
+  capSupply: async () => {},
+  supplyCapped: false,
 };
 
 export const SolanaContext = createContext(initial);
