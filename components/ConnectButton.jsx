@@ -12,9 +12,10 @@ export default function ConnectButton() {
   };
 
   const onConnectedStyle = connected ? styles.connected : styles.container;
+  const onHoveredStyle = connected ? styles.hoveredToDisconnect : styles.hoveredToConnect;
 
   return (
-    <button className={onConnectedStyle} disabled={loading} onClick={handleConnectClick}>
+    <button className={`${onConnectedStyle} ${onHoveredStyle}`} disabled={loading} onClick={handleConnectClick}>
       {!connected ? <CgBolt size={32} /> : <VscDebugDisconnect size={32} />}
     </button>
   );

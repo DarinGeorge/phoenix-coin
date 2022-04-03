@@ -30,7 +30,7 @@ export default function AirDropper() {
         </button>
       </div>
 
-      <button className={styles.button} disabled={loading} onClick={airdropTestSOL}>
+      <button className={`${styles.button} ${styles.buttonHovered}`} disabled={loading} onClick={airdropTestSOL}>
         Request
       </button>
     </div>

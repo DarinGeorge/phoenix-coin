@@ -18,11 +18,14 @@ export default function MintSelector() {
       </div>
 
       {isCoinCreated ? (
-        <button className={styles.button} disabled={loading || supplyCapped} onClick={mintMoreCoins}>
+        <button
+          className={`${styles.button} ${styles.buttonHovered}`}
+          disabled={loading || supplyCapped}
+          onClick={mintMoreCoins}>
           <RiCoinsFill size={39} />
         </button>
       ) : (
-        <button className={styles.button} disabled={loading} onClick={initialMintCoins}>
+        <button className={`${styles.button} ${styles.buttonHovered}`} disabled={loading} onClick={initialMintCoins}>
           <RiCoinsFill size={39} />
         </button>
       )}

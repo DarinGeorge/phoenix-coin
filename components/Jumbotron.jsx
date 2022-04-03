@@ -3,7 +3,7 @@ import {SolanaContext} from '../context/solana';
 import {styles} from '../styles/components/Jumbotron.tailwind';
 import ConnectButton from './ConnectButton';
 
-export default function Jumbotron() {
+export default function Jumbotron({supported}) {
   const {connected} = useContext(SolanaContext);
 
   return (
@@ -13,7 +13,7 @@ export default function Jumbotron() {
         <p className={styles.poweredBy}>powered by Solana Blockchain</p>
       </div>
 
-      <ConnectButton />
+      {supported && <ConnectButton />}
     </div>
   );
 }

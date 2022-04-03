@@ -6,4 +6,6 @@ export const styles = {
   indicator: 'p-2 text-2xl font-bold',
   actionBtnWrapper: 'flex flex-row items-center justify-center mb-2',
   button: 'w-full bg-transparent text-md rounded-md border-2 border-gray-200 py-1 px-3 font-semibold text-purple-600',
+  buttonHovered:
+    'hover:text-white hover:bg-purple-600 hover:border-purple-600 cursor-pointer transition-colors duration-300',
 };
