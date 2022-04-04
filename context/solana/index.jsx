@@ -18,6 +18,10 @@ const initial = {
   transferCoins: async () => {},
   capSupply: async () => {},
   supplyCapped: false,
+  transferAddress: undefined,
+  setTransferAddress: () => {},
+  logs: [],
+  createdCoinAddress: '',
 };
 
 export const SolanaContext = createContext(initial);

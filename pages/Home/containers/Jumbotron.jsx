@@ -1,7 +1,7 @@
 import {useContext} from 'react';
-import {SolanaContext} from '../context/solana';
-import {styles} from '../styles/components/Jumbotron.tailwind';
-import ConnectButton from './ConnectButton';
+import {SolanaContext} from '../../../context/solana';
+import {styles} from '../../../styles/containers/Home/Jumbotron.tailwind';
+import ConnectButton from '../../../components/ConnectButton';
 
 export default function Jumbotron({supported}) {
   const {connected} = useContext(SolanaContext);

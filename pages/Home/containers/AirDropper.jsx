@@ -1,9 +1,10 @@
 import {useContext} from 'react';
-import {SolanaContext} from '../context/solana';
-import {styles} from '../styles/components/AirDropper.tailwind';
+import {SolanaContext} from '../../../context/solana';
+import {styles} from '../../../styles/containers/Home/AirDropper.tailwind';
 
 export default function AirDropper() {
-  const {connected, loading, airdropTestSOL, requestedSOLAmount, setRequestedSOLAmount} = useContext(SolanaContext);
+  const {connected, loading, supplyCapped, airdropTestSOL, requestedSOLAmount, setRequestedSOLAmount} =
+    useContext(SolanaContext);
 
   const onSOLAmountChange = direction => {
     if (direction === 'increment') {
@@ -15,7 +16,7 @@ export default function AirDropper() {
     }
   };
 
-  if (!connected) return null;
+  if (!connected || supplyCapped) return null;
   return (
     <div className={styles.container}>
       <p className={styles.title}>Airdrop Solana</p>

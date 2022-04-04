@@ -5,4 +5,5 @@ export const styles = {
     'hover:text-white hover:bg-purple-600 hover:border-purple-600 cursor-pointer transition-colors duration-300',
   hoveredToDisconnect:
     'hover:text-white hover:bg-red-600 hover:border-red-600 cursor-pointer transition-colors duration-300',
+  disabled: 'text-white bg-gray-200',
 };

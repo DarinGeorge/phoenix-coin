@@ -1,5 +1,5 @@
 import {Connection, clusterApiUrl, Keypair, LAMPORTS_PER_SOL} from '@solana/web3.js';
-import {useState} from 'react';
+import {useState, useRef} from 'react';
 import {
   createMint,
   getAccount,
@@ -29,9 +29,11 @@ export default function ProviderUtils() {
   const [provider, setProvider] = useState();
   const [loading, setLoading] = useState(false);
   const [requestedSOLAmount, setRequestedSOLAmount] = useState(1);
-  const [requestedInitialMintAmount, setRequestedInitialMintAmount] = useState(0);
+  const [requestedInitialMintAmount, setRequestedInitialMintAmount] = useState(1000000);
+  const [transferAddress, setTransferAddress] = useState();
   const [isCoinCreated, setIsCoinCreated] = useState(false);
   const [createdCoinPublicKey, setCreatedCoinPublicKey] = useState();
+  const [createdCoinAddress, setCreatedCoinAddress] = useState('');
   const [mintingWalletSecretKey, setMintingWalletSecretKey] = useState('');
   const [supplyCapped, setSupplyCapped] = useState(false);
 
@@ -63,6 +65,8 @@ export default function ProviderUtils() {
     setConnected(false);
   };
 
+  const updateLogs = () => {};
+
   /** Airdrops SOL from the Solana blockchain, only works on the devnet & defaults to 1 SOL. */
   const airdropTestSOL = async (account, amount) => {
     const isOnClickFunc = account._reactName === 'onClick';
@@ -78,11 +82,6 @@ export default function ProviderUtils() {
 
       await connection.confirmTransaction(airdropSignature);
 
-      console.log(
-        `${amount ? amount : requestedSOLAmount} SOL airdropped to your wallet: ${
-          !isOnClickFunc ? account : provider.publicKey.toString()
-        } successfully`
-      );
       isOnClickFunc && setLoading(false);
     } catch (e) {
       console.error(e);
@@ -115,19 +114,15 @@ export default function ProviderUtils() {
       );
 
       setCreatedCoinPublicKey(mint);
-      console.log('mint unique ID: ', mint.toBase58());
 
       // 2. Verify new supply is 0, then create coin account & mint initial amount
-      const mintInfo = await getMint(connection, mint);
-      console.log('current supply: ', mintInfo.supply); // 0
-
       const masterCoinAccount = await getOrCreateAssociatedTokenAccount(
         connection,
         mintAuthority,
         mint,
         mintAuthority.publicKey
       );
-      console.log('coin account address:', masterCoinAccount.address.toBase58());
+      setCreatedCoinAddress(masterCoinAccount.address.toBase58());
 
       const sigTxHashMint = await mintTo(
         connection,
@@ -138,17 +133,18 @@ export default function ProviderUtils() {
         1000000
       );
 
-      console.log('Minted', 1000000, 'coins successfully!');
-      console.log(
-        'View transaction via Solana Explorer here: https://explorer.solana.com/tx/' + sigTxHashMint + '?cluster=devnet'
+      updateLogs(
+        'Minted 1000000 coins successfully! View transaction via Solana Explorer here: https://explorer.solana.com/tx/' +
+          sigTxHashMint +
+          '?cluster=devnet'
       );
 
       // (Optional) Print Balances
       const info = await getMint(connection, mint);
-      console.log('new supply:', info.supply);
+      updateLogs('new supply:' + info.supply);
 
       const tokenAccountInfo = await getAccount(connection, masterCoinAccount.address);
-      console.log('verified supply in account:', tokenAccountInfo.amount);
+      updateLogs('verified supply in account:' + tokenAccountInfo.amount);
 
       // 3. Transfer to Requesting User
       // Get the token account of the toWallet address, and if it does not exist, create it
@@ -163,8 +159,7 @@ export default function ProviderUtils() {
         1000000
       );
 
-      console.log('Transferred', 1000000, 'coins successfully to', toCoinAccount.address.toBase58());
-      console.log(
+      updateLogs(
         'View transaction via Solana Explorer here: https://explorer.solana.com/tx/' + sigTxHash + '?cluster=devnet'
       );
     } catch (e) {
@@ -198,10 +193,6 @@ export default function ProviderUtils() {
       // 2. Mint the new amount of coins, 100 for now.
       await mintTo(connection, mintingAuthority, createdCoinPublicKey, mintingAccount.address, mintingAuthority, 100);
 
-      const accountInfo = await getAccount(connection, mintingAccount.address);
-      console.log('success! new amount added to address', accountInfo.address.toBase58());
-      console.log(accountInfo.amount, 'SOL');
-
       // 3. Transfer to requesting user
       const toCoinAccount = await getOrCreateAssociatedTokenAccount(
         connection,
@@ -218,14 +209,14 @@ export default function ProviderUtils() {
         mintingAuthority.publicKey,
         100
       );
-      console.log('Transferred', 100, 'SOL to', toCoinAccount.address.toBase58());
-      console.log(
+
+      updateLogs(
         'View transaction via Solana Explorer here: https://explorer.solana.com/tx/' + sigTxHash + '?cluster=devnet'
       );
 
       setLoading(false);
     } catch (err) {
-      console.log(err);
+      updateLogs(err);
       setLoading(false);
     }
   };
@@ -272,14 +263,14 @@ export default function ProviderUtils() {
         10
       );
 
-      console.log('Minted & Transferred', 10, 'SOL to', toAccount.address.toBase58());
-      console.log(
+      updateLogs('Minted & Transferred', 10, 'SOL to', toAccount.address.toBase58());
+      updateLogs(
         'View transaction via Solana Explorer here: https://explorer.solana.com/tx/' + sigTxHash + '?cluster=devnet'
       );
 
       setLoading(false);
     } catch (err) {
-      console.log(err);
+      updateLogs(err);
       setLoading(false);
     } finally {
     }
@@ -297,7 +288,7 @@ export default function ProviderUtils() {
         mintAuthority,
       ]);
     } catch (err) {
-      console.log(err);
+      updateLogs(err);
       setLoading(false);
     } finally {
       setSupplyCapped(true);
@@ -322,5 +313,8 @@ export default function ProviderUtils() {
     supplyCapped,
     capSupply,
     transferCoins,
+    transferAddress,
+    setTransferAddress,
+    createdCoinAddress,
   };
 }
